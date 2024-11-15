@@ -225,7 +225,11 @@ def filling(edited_data, data, output_path):
     insert_date['Date29_af_date'] = edited_data['_date']
     insert_date['Text26'] = edited_data['_percentage']
     insert_date['Text35'] = edited_data['_price']
-    insert_date['Text40'] = edited_data['_monthly']
+    if float(edited_data['_monthly']) > 0: 
+        insert_date['Text40'] = edited_data['_monthly']
+    else: # zero monthly fee
+        insert_date['Text40'] = '0.00'
+        insert_date['Text41'] = '0.00'
     insert_date['þÿ\x00f\x001\x00_\x000\x001\x00_\x000\x00_\x00[\x000\x00]'] = data['Legal Name of Business']
     insert_date['þÿ\x00f\x001\x00_\x000\x002\x00_\x000\x00_\x00[\x000\x00]'] = data['DBA']
     insert_date['þÿ\x00f\x001\x00_\x000\x004\x00_\x000\x00_\x00[\x000\x00]'] = data['Street']
