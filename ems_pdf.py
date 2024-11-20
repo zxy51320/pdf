@@ -144,33 +144,17 @@ def prejob(data):
         edited_data['_day'] + '/' + edited_data['_year']    
     return edited_data
 
-# Function to fill the PDF
+# Functions to fill the PDF
 
-
-def filling(edited_data, data, output_path):
+def mpa_filling(edited_data, data, output_path):
     insert_date = {}
-    match get_legal_name_suffix(data['Legal Name of Business']):
-        case 'LLC':
+    match data['Company Type']:
+        case 'Limited Liability Co. (公司)':
             insert_date['LLC'] = 'On'
-            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x005\x00]'] = '6'
-        case 'INC':
+        case 'Private Corp. (公司)':
             insert_date['Corporation'] = 'On'
-            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x002\x00]'] = '3'
-        case 'CORP':
-            insert_date['Corporation'] = 'On'
-            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x002\x00]'] = '3'
-        case 'CORPORATION':
-            insert_date['Corporation'] = 'On'
-            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x002\x00]'] = '3'
-        case 'ENTERPRISE':
-            insert_date['Corporation'] = 'On'
-            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x002\x00]'] = '3'
-        case 'LTD':
-            insert_date['Corporation'] = 'On'
-            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x002\x00]'] = '3'    
         case _:
             insert_date['Sole Proprietor or Single Member LLC'] = 'On'
-            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x000\x00]'] = '1'
     insert_date['Corporate or Legal Name'] = data['Legal Name of Business']
     insert_date['Doing Business As'] = data['DBA']
     insert_date['Federal Tax ID Nine Digits'] = data['Tax ID']
@@ -194,13 +178,11 @@ def filling(edited_data, data, output_path):
         '(' + data['Owner Name'] + ')'
     insert_date['Its'] = data['Legal Name of Business'] + \
         '(' + data['Owner Name'] + ')'
-    insert_date['MERCHANT DBA'] = data['DBA']
     insert_date['Text62'] = data['Owner Name']
     insert_date['Area Code'] = edited_data['_Area_Code']
     insert_date['Telephone Number'] = edited_data['_Telephone_Num']
     insert_date['Business Email Address'] = edited_data['_Email']
     insert_date['Email Address'] = edited_data['_Email']
-    insert_date['MERCHANT EMAIL'] = edited_data['_Email']
     insert_date['Month'] = edited_data['_dob_mm']
     insert_date['Day'] = edited_data['_dob_dd']
     insert_date['Year'] = edited_data['_dob_yy']
@@ -215,9 +197,6 @@ def filling(edited_data, data, output_path):
     insert_date['Date Month'] = edited_data['_month']
     insert_date['Date Day'] = edited_data['_day']
     insert_date['Date Year'] = edited_data['_year']
-    insert_date['checklist month'] = edited_data['_month']
-    insert_date['checklist day'] = edited_data['_day']
-    insert_date['checklist year'] = edited_data['_year']
     insert_date['Date57_af_date'] = edited_data['_date']
     insert_date['Date61_af_date'] = edited_data['_date']
     insert_date['Date66_af_date'] = edited_data['_date']
@@ -230,11 +209,33 @@ def filling(edited_data, data, output_path):
     else: # zero monthly fee
         insert_date['Text40'] = '0.00'
         insert_date['Text41'] = '0.00'
+    fillpdfs.write_fillable_pdf(
+        mpa_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date, flatten=True)
+        
+def checklist_filling(edited_data, data, output_path):
+    insert_date = {}
+    insert_date['MERCHANT DBA'] = data['DBA']
+    insert_date['MERCHANT EMAIL'] = edited_data['_Email']
+    insert_date['checklist month'] = edited_data['_month']
+    insert_date['checklist day'] = edited_data['_day']
+    insert_date['checklist year'] = edited_data['_year']
+    fillpdfs.write_fillable_pdf(
+        checklist_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date, flatten=True)
+    
+def w9_filling(edited_data, data, output_path):
+    insert_date = {}
+    match data['Company Type']:
+        case 'Limited Liability Co. (公司)':
+            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x005\x00]'] = '6'
+        case 'Private Corp. (公司)':
+            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x002\x00]'] = '3'
+        case _:
+            insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x000\x00]'] = '1'
     insert_date['þÿ\x00f\x001\x00_\x000\x001\x00_\x000\x00_\x00[\x000\x00]'] = data['Legal Name of Business']
     insert_date['þÿ\x00f\x001\x00_\x000\x002\x00_\x000\x00_\x00[\x000\x00]'] = data['DBA']
     insert_date['þÿ\x00f\x001\x00_\x000\x004\x00_\x000\x00_\x00[\x000\x00]'] = data['Street']
     insert_date['þÿ\x00f\x001\x00_\x000\x005\x00_\x000\x00_\x00[\x000\x00]'] = data['City'] + \
-        ',' + edited_data['_State'] + ',' + data['ZIP']
+        ',' + edited_data['_State'] + ' ' + data['ZIP']
     insert_date['W9date'] = edited_data['_date']
     if len(data['Tax ID'].split('-')[0]) == 2:
         insert_date['þÿ\x00T\x00e\x00x\x00t\x00F\x00i\x00e\x00l\x00d\x002\x00[\x002\x00]'] = data['Tax ID'].split(
@@ -248,15 +249,14 @@ def filling(edited_data, data, output_path):
             '-')[1]
         insert_date['þÿ\x00T\x00e\x00x\x00t\x00F\x00i\x00e\x00l\x00d\x002\x00[\x001\x00]'] = data['Tax ID'].split(
             '-')[2]
-
     fillpdfs.write_fillable_pdf(
-        addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date)
+        w9_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date, flatten=True)
+
 
 # GUI function to get file paths and process the data
 
-
 def process_files():
-    global addr, csv_file
+    global mpa_addr,checklist_addr,w9_addr,csv_file
 
     # Select CSV file
     csv_file = filedialog.askopenfilename(
@@ -267,13 +267,23 @@ def process_files():
 
     # Select PDF file
     if getattr(sys, 'frozen', False):
-        pdf_file = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application.pdf')
+        mpa_pdf_file = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application.pdf')
+        checklist_pdf_file = os.path.join(sys._MEIPASS, 'EMS_Checklist.pdf')
+        w9_pdf_file = os.path.join(sys._MEIPASS, 'EMS_W9.pdf')
     else:
-        pdf_file = 'EMS_Merchant_Application.pdf'
-
+        mpa_pdf_file = 'EMS_Merchant_Application.pdf'
+        checklist_pdf_file = 'EMS_Checklist.pdf'
+        w9_pdf_file = 'EMS_W9.pdf'
+        
     # Set PDF file paths
-    addr = [pdf_file, os.path.join(os.path.dirname(
+    mpa_addr = [mpa_pdf_file, os.path.join(os.path.dirname(
         csv_file), 'EMS_Merchant Application_')]
+    
+    checklist_addr = [checklist_pdf_file, os.path.join(os.path.dirname(
+        csv_file), 'EMS_Checklist_')]
+    
+    w9_addr = [w9_pdf_file, os.path.join(os.path.dirname(
+        csv_file), 'EMS_W9_')]
 
     # Read data and process it
     try:
@@ -286,10 +296,14 @@ def process_files():
             raw_data[key] = raw_data[key].replace(
                 '\xa0', ' ')  # convert non-breaking space
         pre = prejob(raw_data)
-        filling(pre, raw_data, addr[1])
-        messagebox.showinfo("Success", "PDF filled and saved successfully!")
+        mpa_filling(pre, raw_data, mpa_addr[1])
+        messagebox.showinfo("Success", "MPA filled and saved successfully!")
+        checklist_filling(pre, raw_data, checklist_addr[1])
+        messagebox.showinfo("Success", "Chcklist filled and saved successfully!")
+        w9_filling(pre, raw_data, w9_addr[1])
+        messagebox.showinfo("Success", "W9 filled and saved successfully!")
         # Open the directory containing the new PDF file
-        output_directory = os.path.dirname(addr[1])
+        output_directory = os.path.dirname(mpa_addr[1])
         if os.name == 'nt':  # For Windows
             os.startfile(output_directory)
     except Exception as e:
