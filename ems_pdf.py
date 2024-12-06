@@ -9,6 +9,7 @@ import os
 import sys
 import ftfy
 
+
 # Function to read CSV as a list of dictionaries
 
 
@@ -118,17 +119,21 @@ def prejob(data):
                 edited_data['_percentage'] = f"{
                     (1 - (100 / (100 + float(rate_dict['percentage']))))*100:.2f}"
                 edited_data['_price'] = ''
+                edited_data['_ismonthly'] = False
             case 'Cash Discount (by Flat Fee $)':
                 edited_data['_price'] = f"${float(rate_dict['price']):.2f}"
                 edited_data['_percentage'] = ''
+                edited_data['_ismonthly'] = False
             case 'Flat Rate':
                 if float(rate_dict['percentage']) == 0:
                     edited_data['_price'] = f"${float(rate_dict['price']):.2f}"
                     edited_data['_percentage'] = ''
+                    edited_data['_ismonthly'] = True
                 else:
                     edited_data['_percentage'] = f"{
                         float(rate_dict['percentage']):.2f}"
                     edited_data['_price'] = ''
+                    edited_data['_ismonthly'] = True
             case _:
                 edited_data['_percentage'] = 'Pricing Type Error'
                 edited_data['_price'] = 'Pricing Type Error'
@@ -144,34 +149,48 @@ def prejob(data):
         edited_data['_day'] + '/' + edited_data['_year']    
     return edited_data
 
-# Functions to fill the PDF
 
+# Functions to fill the PDF
 def mpa_filling(edited_data, data, output_path):
     insert_date = {}
     match data['Company Type']:
         case 'Limited Liability Co. (公司)':
-            insert_date['LLC'] = 'On'
+            insert_date['Group_1'] = '3'
         case 'Private Corp. (公司)':
-            insert_date['Corporation'] = 'On'
+            insert_date['Group_1'] = '1'
         case _:
-            insert_date['Sole Proprietor or Single Member LLC'] = 'On'
-    insert_date['Corporate or Legal Name'] = data['Legal Name of Business']
+            insert_date['Group_1'] = '0'
+    #insert_date['Corporate or Legal Name'] = data['Legal Name of Business']
+    insert_date['Corp or Legal Name'] = data['Legal Name of Business']
     insert_date['Doing Business As'] = data['DBA']
-    insert_date['Federal Tax ID Nine Digits'] = data['Tax ID']
-    insert_date['Authorized Contact Person'] = data['Owner Name']
-    insert_date['Corporate Address'] = data['Street']
+    #insert_date['Federal Tax ID Nine Digits'] = data['Tax ID']
+    insert_date['Fed Tax ID'] = data['Tax ID']
+    #insert_date['Authorized Contact Person'] = data['Owner Name']
+    insert_date['Authorized Contact'] = data['Owner Name']
+    #insert_date['Corporate Address'] = data['Street']
+    insert_date['Corp Address'] = data['Street']
     insert_date['City'] = data['City']
     insert_date['Zip'] = data['ZIP']
-    insert_date['Bankcard Dep Bank'] = data['Bank Name']
-    insert_date['Routing #'] = data['Bank Routing']
-    insert_date['Account'] = data['Bank Account']
-    insert_date['Name 1'] = data['Owner Name']
+    insert_date['Bankcard'] = data['Bank Name']
+    insert_date['Routing1'] = data['Bank Routing']
+    insert_date['Account1'] = data['Bank Account']
+    insert_date['Year Biz Est'] = data['Establish Year']
+    insert_date['Year 1'] = data['Ownership Length Yr']
+    insert_date['Months 1'] = data['Ownership Length Mo']
+    insert_date['Year 2'] = data['Ownership Length Yr']
+    insert_date['Months 2'] = data['Ownership Length Mo']
+    insert_date['Name \\(1\\)'] = data['Owner Name']
     insert_date['SSN'] = data['Social Security Number']
     insert_date['Residential Address'] = data['Home Street']
-    insert_date['City_3'] = data['Home City']
-    insert_date['Zip_3'] = data['Home ZIP']
-    insert_date['Drivers License or State ID No'] = data['Driver License Number']
-    insert_date['Text52'] = data['Legal Name of Business'] + \
+    #insert_date['City_3'] = data['Home City']
+    insert_date['City 3'] = data['Home City']
+    #insert_date['Zip_3'] = data['Home ZIP']
+    insert_date['Zip 3'] = data['Home ZIP']
+    #insert_date['Drivers License or State ID No'] = data['Driver License Number']
+    insert_date['DL #'] = data['Driver License Number']
+    #insert_date['Text52'] = data['Legal Name of Business'] + \
+    #    '(' + data['Owner Name'] + ')'
+    insert_date['Print Merch Legal Name'] = data['Legal Name of Business'] + \
         '(' + data['Owner Name'] + ')'
     insert_date['MERCHANT NAME'] = data['DBA']
     insert_date['Merchant Name Print'] = data['Legal Name of Business'] + \
@@ -179,39 +198,68 @@ def mpa_filling(edited_data, data, output_path):
     insert_date['Its'] = data['Legal Name of Business'] + \
         '(' + data['Owner Name'] + ')'
     insert_date['Text62'] = data['Owner Name']
-    insert_date['Area Code'] = edited_data['_Area_Code']
-    insert_date['Telephone Number'] = edited_data['_Telephone_Num']
-    insert_date['Business Email Address'] = edited_data['_Email']
+    insert_date['Please Print Name 1'] = data['Owner Name']
+    #insert_date['Area Code'] = edited_data['_Area_Code']
+    #insert_date['Telephone Number'] = edited_data['_Telephone_Num']
+    insert_date['Area Code 1'] = edited_data['_Area_Code']
+    insert_date['Number 1'] = edited_data['_Telephone_Num']
+    #insert_date['Business Email Address'] = edited_data['_Email']
+    insert_date['Biz Email Address'] = edited_data['_Email']
     insert_date['Email Address'] = edited_data['_Email']
-    insert_date['Month'] = edited_data['_dob_mm']
-    insert_date['Day'] = edited_data['_dob_dd']
-    insert_date['Year'] = edited_data['_dob_yy']
-    insert_date['Mobile Ph Area'] = edited_data['_Mobile_Ph_Area']
-    insert_date['Mobile Phone'] = edited_data['_Mobile_Phone']
-    insert_date['Residence Phone Area Code'] = edited_data['_Mobile_Ph_Area']
-    insert_date['Residence Telephone'] = edited_data['_Mobile_Phone']
+    #insert_date['Month'] = edited_data['_dob_mm']
+    insert_date['MM'] = edited_data['_dob_mm']
+    #insert_date['Day'] = edited_data['_dob_dd']
+    insert_date['DD'] = edited_data['_dob_dd']
+    #insert_date['Year'] = edited_data['_dob_yy']
+    insert_date['YYYY'] = edited_data['_dob_yy']
+    #insert_date['Mobile Ph Area'] = edited_data['_Mobile_Ph_Area']
+    #insert_date['Mobile Phone'] = edited_data['_Mobile_Phone']
+    insert_date['Area Code 6'] = edited_data['_Mobile_Ph_Area']
+    insert_date['Number 6'] = edited_data['_Mobile_Phone']
+    #insert_date['Residence Phone Area Code'] = edited_data['_Mobile_Ph_Area']
+    #insert_date['Residence Telephone'] = edited_data['_Mobile_Phone']
+    insert_date['Area Code 5'] = edited_data['_Mobile_Ph_Area']
+    insert_date['Number 5'] = edited_data['_Mobile_Phone']
     insert_date['State'] = edited_data['_State']
-    insert_date['State_3'] = edited_data['_State_reside']
+    #insert_date['State_3'] = edited_data['_State_reside']
+    insert_date['State 3'] = edited_data['_State_reside']
     insert_date['State of Issue'] = edited_data['_state_issued']
     insert_date['state_issued'] = edited_data['_state_issued']
-    insert_date['Date Month'] = edited_data['_month']
-    insert_date['Date Day'] = edited_data['_day']
-    insert_date['Date Year'] = edited_data['_year']
-    insert_date['Date57_af_date'] = edited_data['_date']
-    insert_date['Date61_af_date'] = edited_data['_date']
-    insert_date['Date66_af_date'] = edited_data['_date']
-    insert_date['Date28_af_date'] = edited_data['_date']
-    insert_date['Date29_af_date'] = edited_data['_date']
-    insert_date['Text26'] = edited_data['_percentage']
-    insert_date['Text35'] = edited_data['_price']
+    #insert_date['Date Month'] = edited_data['_month']
+    #insert_date['Date Day'] = edited_data['_day']
+    #insert_date['Date Year'] = edited_data['_year']
+    insert_date['MM 4'] = edited_data['_month']
+    insert_date['DD 4'] = edited_data['_day']
+    insert_date['YYYY 4'] = edited_data['_year']
+    #insert_date['Date57_af_date'] = edited_data['_date']
+    #insert_date['Date61_af_date'] = edited_data['_date']
+    #insert_date['Date66_af_date'] = edited_data['_date']
+    #insert_date['Date28_af_date'] = edited_data['_date']
+    #insert_date['Date29_af_date'] = edited_data['_date']
+    insert_date['\\(1\\) Date'] = edited_data['_date']
+    insert_date['\\(3\\) Date'] = edited_data['_date']
+    insert_date['\\(4\\) Date'] = edited_data['_date']
+    insert_date['Date_2'] = edited_data['_date']
+    insert_date['Date_3'] = edited_data['_date']
+    #insert_date['Text26'] = edited_data['_percentage']
+    #insert_date['Text35'] = edited_data['_price']
+    insert_date['%05'] = edited_data['_percentage']
+    insert_date['c05'] = edited_data['_price']
     if float(edited_data['_monthly']) > 0: 
-        insert_date['Text40'] = edited_data['_monthly']
+        #insert_date['Text40'] = edited_data['_monthly']
+        insert_date['fee 1'] = edited_data['_monthly']
     else: # zero monthly fee
-        insert_date['Text40'] = '0.00'
-        insert_date['Text41'] = '0.00'
-    fillpdfs.write_fillable_pdf(
-        mpa_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date, flatten=True)
-        
+        #insert_date['Text40'] = '0.00'
+        #insert_date['Text41'] = '0.00'
+        insert_date['fee 1'] = '0.00'
+        insert_date['fee 2'] = '0.00'
+    if edited_data['_ismonthly'] == True:
+        fillpdfs.write_fillable_pdf(
+            mpa_addr[1], f"{output_path + data['DBA'] + '.pdf'}", insert_date,flatten=True)
+    else:
+        fillpdfs.write_fillable_pdf(
+            mpa_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date,flatten=True)
+
 def checklist_filling(edited_data, data, output_path):
     insert_date = {}
     insert_date['MERCHANT DBA'] = data['DBA']
@@ -220,7 +268,9 @@ def checklist_filling(edited_data, data, output_path):
     insert_date['checklist day'] = edited_data['_day']
     insert_date['checklist year'] = edited_data['_year']
     fillpdfs.write_fillable_pdf(
-        checklist_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date, flatten=True)
+        checklist_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date)
+    fillpdfs.flatten_pdf(f"{output_path + data['DBA'] + '.pdf'}",f"{output_path + data['DBA'] + 'new.pdf'}", as_images=True)
+
     
 def w9_filling(edited_data, data, output_path):
     insert_date = {}
@@ -267,16 +317,18 @@ def process_files():
 
     # Select PDF file
     if getattr(sys, 'frozen', False):
-        mpa_pdf_file = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application.pdf')
+        mpa_pdf_daily = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application_DAILY.pdf')
+        mpa_pdf_monthly = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application_MONTHLY.pdf')
         checklist_pdf_file = os.path.join(sys._MEIPASS, 'EMS_Checklist.pdf')
         w9_pdf_file = os.path.join(sys._MEIPASS, 'EMS_W9.pdf')
     else:
-        mpa_pdf_file = 'EMS_Merchant_Application.pdf'
+        mpa_pdf_daily = 'EMS_Merchant_Application_DAILY.pdf'
+        mpa_pdf_monthly = 'EMS_Merchant_Application_MONTHLY.pdf'
         checklist_pdf_file = 'EMS_Checklist.pdf'
         w9_pdf_file = 'EMS_W9.pdf'
         
     # Set PDF file paths
-    mpa_addr = [mpa_pdf_file, os.path.join(os.path.dirname(
+    mpa_addr = [mpa_pdf_daily,mpa_pdf_monthly, os.path.join(os.path.dirname(
         csv_file), 'EMS_Merchant Application_')]
     
     checklist_addr = [checklist_pdf_file, os.path.join(os.path.dirname(
@@ -296,22 +348,22 @@ def process_files():
             raw_data[key] = raw_data[key].replace(
                 '\xa0', ' ')  # convert non-breaking space
         pre = prejob(raw_data)
-        mpa_filling(pre, raw_data, mpa_addr[1])
+        #fillpdfs.print_form_fields(mpa_pdf_daily, sort=False, page_number=None)
+        mpa_filling(pre, raw_data, mpa_addr[2])
         messagebox.showinfo("Success", "MPA filled and saved successfully!")
         checklist_filling(pre, raw_data, checklist_addr[1])
         messagebox.showinfo("Success", "Chcklist filled and saved successfully!")
         w9_filling(pre, raw_data, w9_addr[1])
         messagebox.showinfo("Success", "W9 filled and saved successfully!")
         # Open the directory containing the new PDF file
-        output_directory = os.path.dirname(mpa_addr[1])
+        output_directory = os.path.dirname(mpa_addr[2])
         if os.name == 'nt':  # For Windows
             os.startfile(output_directory)
     except Exception as e:
         messagebox.showerror("Error", str(e))
 
+
 # Main function to create the GUI
-
-
 def main():
     root = tk.Tk()
     root.title("PDF Filler")
