@@ -253,12 +253,8 @@ def mpa_filling(edited_data, data, output_path):
         #insert_date['Text41'] = '0.00'
         insert_date['fee 1'] = '0.00'
         insert_date['fee 2'] = '0.00'
-    if edited_data['_ismonthly'] == True:
-        fillpdfs.write_fillable_pdf(
-            mpa_addr[1], f"{output_path + data['DBA'] + '.pdf'}", insert_date,flatten=True)
-    else:
-        fillpdfs.write_fillable_pdf(
-            mpa_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date,flatten=True)
+    fillpdfs.write_fillable_pdf(
+            mpa_addr[0], f"{output_path + '.pdf'}", insert_date,flatten=True)
 
 def checklist_filling(edited_data, data, output_path):
     insert_date = {}
@@ -267,9 +263,17 @@ def checklist_filling(edited_data, data, output_path):
     insert_date['checklist month'] = edited_data['_month']
     insert_date['checklist day'] = edited_data['_day']
     insert_date['checklist year'] = edited_data['_year']
+    insert_date['EMS ISSUED OFFICE NUMBER'] = '5546'
+    insert_date['SALES REP'] = 'KEVIN ZHAO'
+    insert_date['TERMINAL INFORMATION'] = 'DEJAVOO Z8'
+    insert_date['Number of Terminals'] = '1'
+    if edited_data['_ismonthly'] == True:
+        insert_date['Other Information 1'] = 'Expedited Funding and Monthly Billing'
+    else:
+        insert_date['Other Information 1'] = 'Expedited Funding'
     fillpdfs.write_fillable_pdf(
-        checklist_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date)
-    fillpdfs.flatten_pdf(f"{output_path + data['DBA'] + '.pdf'}",f"{output_path + data['DBA'] + 'new.pdf'}", as_images=True)
+        checklist_addr[0], f"{output_path + '.pdf'}", insert_date)
+    fillpdfs.flatten_pdf(f"{output_path + '.pdf'}",f"{output_path + '.pdf'}", as_images=True)
 
     
 def w9_filling(edited_data, data, output_path):
@@ -300,7 +304,7 @@ def w9_filling(edited_data, data, output_path):
         insert_date['þÿ\x00T\x00e\x00x\x00t\x00F\x00i\x00e\x00l\x00d\x002\x00[\x001\x00]'] = data['Tax ID'].split(
             '-')[2]
     fillpdfs.write_fillable_pdf(
-        w9_addr[0], f"{output_path + data['DBA'] + '.pdf'}", insert_date, flatten=True)
+        w9_addr[0], f"{output_path + '.pdf'}", insert_date, flatten=True)
 
 
 # GUI function to get file paths and process the data
@@ -317,18 +321,16 @@ def process_files():
 
     # Select PDF file
     if getattr(sys, 'frozen', False):
-        mpa_pdf_daily = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application_DAILY.pdf')
-        mpa_pdf_monthly = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application_MONTHLY.pdf')
+        mpa_pdf = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application.pdf')
         checklist_pdf_file = os.path.join(sys._MEIPASS, 'EMS_Checklist.pdf')
         w9_pdf_file = os.path.join(sys._MEIPASS, 'EMS_W9.pdf')
     else:
-        mpa_pdf_daily = 'EMS_Merchant_Application_DAILY.pdf'
-        mpa_pdf_monthly = 'EMS_Merchant_Application_MONTHLY.pdf'
+        mpa_pdf = 'EMS_Merchant_Application.pdf'
         checklist_pdf_file = 'EMS_Checklist.pdf'
         w9_pdf_file = 'EMS_W9.pdf'
         
     # Set PDF file paths
-    mpa_addr = [mpa_pdf_daily,mpa_pdf_monthly, os.path.join(os.path.dirname(
+    mpa_addr = [mpa_pdf, os.path.join(os.path.dirname(
         csv_file), 'EMS_Merchant Application_')]
     
     checklist_addr = [checklist_pdf_file, os.path.join(os.path.dirname(
@@ -348,15 +350,15 @@ def process_files():
             raw_data[key] = raw_data[key].replace(
                 '\xa0', ' ')  # convert non-breaking space
         pre = prejob(raw_data)
-        #fillpdfs.print_form_fields(mpa_pdf_daily, sort=False, page_number=None)
-        mpa_filling(pre, raw_data, mpa_addr[2])
+        #fillpdfs.print_form_fields(checklist_pdf_file, sort=False, page_number=None)
+        mpa_filling(pre, raw_data, mpa_addr[1])
         messagebox.showinfo("Success", "MPA filled and saved successfully!")
         checklist_filling(pre, raw_data, checklist_addr[1])
         messagebox.showinfo("Success", "Chcklist filled and saved successfully!")
         w9_filling(pre, raw_data, w9_addr[1])
         messagebox.showinfo("Success", "W9 filled and saved successfully!")
         # Open the directory containing the new PDF file
-        output_directory = os.path.dirname(mpa_addr[2])
+        output_directory = os.path.dirname(mpa_addr[1])
         if os.name == 'nt':  # For Windows
             os.startfile(output_directory)
     except Exception as e:
