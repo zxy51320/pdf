@@ -352,11 +352,9 @@ def process_files():
         pre = prejob(raw_data)
         #fillpdfs.print_form_fields(checklist_pdf_file, sort=False, page_number=None)
         mpa_filling(pre, raw_data, mpa_addr[1])
-        messagebox.showinfo("Success", "MPA filled and saved successfully!")
         checklist_filling(pre, raw_data, checklist_addr[1])
-        messagebox.showinfo("Success", "Chcklist filled and saved successfully!")
         w9_filling(pre, raw_data, w9_addr[1])
-        messagebox.showinfo("Success", "W9 filled and saved successfully!")
+        messagebox.showinfo("Success", "All files filled successfully!")
         # Open the directory containing the new PDF file
         output_directory = os.path.dirname(mpa_addr[1])
         if os.name == 'nt':  # For Windows
