@@ -269,8 +269,10 @@ def checklist_filling(edited_data, data, output_path):
     insert_date['Number of Terminals'] = '1'
     if edited_data['_ismonthly'] == True:
         insert_date['Other Information 1'] = 'Expedited Funding and Monthly Billing'
+        insert_date['Other Information 2'] = 'Set up Paper Statements'
     else:
         insert_date['Other Information 1'] = 'Expedited Funding'
+        insert_date['Other Information 2'] = 'Set up Paper Statements'
     fillpdfs.write_fillable_pdf(
         checklist_addr[0], f"{output_path + '.pdf'}", insert_date)
     fillpdfs.flatten_pdf(f"{output_path + '.pdf'}",f"{output_path + '.pdf'}", as_images=True)
