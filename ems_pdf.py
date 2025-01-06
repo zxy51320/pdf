@@ -153,10 +153,10 @@ def prejob(data):
 # Functions to fill the PDF
 def mpa_filling(edited_data, data, output_path):
     insert_date = {}
-    match data['Company Type']:
-        case 'Limited Liability Co. (公司)':
+    match data['Legal Type']:
+        case 'LLC':
             insert_date['Group_1'] = '3'
-        case 'Private Corp. (公司)':
+        case 'Corporation':
             insert_date['Group_1'] = '1'
         case _:
             insert_date['Group_1'] = '0'
@@ -280,10 +280,10 @@ def checklist_filling(edited_data, data, output_path):
     
 def w9_filling(edited_data, data, output_path):
     insert_date = {}
-    match data['Company Type']:
-        case 'Limited Liability Co. (公司)':
+    match data['Legal Type']:
+        case 'LLC':
             insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x005\x00]'] = '6'
-        case 'Private Corp. (公司)':
+        case 'Corporation':
             insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x002\x00]'] = '3'
         case _:
             insert_date['þÿ\x00c\x001\x00_\x000\x001\x00[\x000\x00]'] = '1'
@@ -323,23 +323,23 @@ def process_files():
 
     # Select PDF file
     if getattr(sys, 'frozen', False):
-        mpa_pdf = os.path.join(sys._MEIPASS, 'EMS_Merchant_Application.pdf')
-        checklist_pdf_file = os.path.join(sys._MEIPASS, 'EMS_Checklist.pdf')
-        w9_pdf_file = os.path.join(sys._MEIPASS, 'EMS_W9.pdf')
+        mpa_pdf = os.path.join(sys._MEIPASS, 'EMS Merchant Application.pdf')
+        checklist_pdf_file = os.path.join(sys._MEIPASS, 'EMS Checklist.pdf')
+        w9_pdf_file = os.path.join(sys._MEIPASS, 'EMS W9.pdf')
     else:
-        mpa_pdf = 'EMS_Merchant_Application.pdf'
-        checklist_pdf_file = 'EMS_Checklist.pdf'
-        w9_pdf_file = 'EMS_W9.pdf'
+        mpa_pdf = 'EMS Merchant Application.pdf'
+        checklist_pdf_file = 'EMS Checklist.pdf'
+        w9_pdf_file = 'EMS W9.pdf'
         
     # Set PDF file paths
     mpa_addr = [mpa_pdf, os.path.join(os.path.dirname(
-        csv_file), 'EMS_Merchant Application_')]
+        csv_file), 'EMS Merchant Application')]
     
     checklist_addr = [checklist_pdf_file, os.path.join(os.path.dirname(
-        csv_file), 'EMS_Checklist_')]
+        csv_file), 'EMS Checklist')]
     
     w9_addr = [w9_pdf_file, os.path.join(os.path.dirname(
-        csv_file), 'EMS_W9_')]
+        csv_file), 'EMS W9')]
 
     # Read data and process it
     try:

@@ -1,1 +1,1 @@
-pyinstaller --add-data "EMS_Merchant_Application.pdf;." --add-data "EMS_Checklist.pdf;." --add-data "EMS_W9.pdf;." -w -F -i IMG_6250.ico ems_pdf.py
+pyinstaller --add-data "EMS_Merchant Application.pdf;." --add-data "EMS Checklist.pdf;." --add-data "EMS W9.pdf;." -w -F -i IMG_6250.ico ems_pdf.py
