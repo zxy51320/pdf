@@ -5,7 +5,7 @@ a = Analysis(
     ['ems_pdf.py'],
     pathex=[],
     binaries=[],
-    datas=[('EMS_Merchant_Application.pdf', '.')],
+    datas=[('EMS Merchant Application.pdf', '.'), ('EMS Checklist.pdf', '.'), ('EMS W9.pdf', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
