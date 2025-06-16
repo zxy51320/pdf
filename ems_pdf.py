@@ -263,16 +263,17 @@ def checklist_filling(edited_data, data, output_path):
     insert_date['checklist month'] = edited_data['_month']
     insert_date['checklist day'] = edited_data['_day']
     insert_date['checklist year'] = edited_data['_year']
-    insert_date['EMS ISSUED OFFICE NUMBER'] = '5546'
-    insert_date['SALES REP'] = 'KEVIN ZHAO'
-    insert_date['TERMINAL INFORMATION'] = 'DEJAVOO Z8'
-    insert_date['Number of Terminals'] = '1'
+    #insert_date['EMS ISSUED OFFICE NUMBER'] = '5546'
+    #insert_date['SALES REP'] = 'KEVIN ZHAO'
+    #insert_date['TERMINAL INFORMATION'] = 'DEJAVOO Z8'
+    #insert_date['Number of Terminals'] = '1'
     if edited_data['_ismonthly'] == True:
         insert_date['Other Information 1'] = 'Expedited Funding and Monthly Billing'
     else:
         insert_date['Other Information 1'] = 'Expedited Funding'
     insert_date['Other Information 2'] = 'Set up Paper Statements'
     insert_date['Other Information 3'] = 'Board with BMO Harris Bank'
+    insert_date['Other Information 4'] = 'Please help set up TYSYS Multi-Pass and sent the welcome email to deployment@zbspos.com'
     fillpdfs.write_fillable_pdf(
         checklist_addr[0], f"{output_path + '.pdf'}", insert_date)
     fillpdfs.flatten_pdf(f"{output_path + '.pdf'}",f"{output_path + '.pdf'}", as_images=True)
